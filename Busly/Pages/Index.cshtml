@@ -1,0 +1,36 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Live Bus Times";
+}
+<header>
+    <div class="container pt-1 pb-1">
+        <div class="input-group">
+            <input type="text" id="stopQuery" class="form-control form-control-lg border-light" placeholder="Find a stop location" aria-label="Find a stop location">
+            <button class="btn btn-lg btn-light" type="button"><span class="material-icons">search</span></button>
+            <button id="useLocation" class="btn btn-lg  btn-warning" type="button"><span class="material-icons">near_me</span></button>
+        </div>
+        <div id="autocomplete">
+            <ul class="list-group list-group-flush"></ul>
+        </div>
+    </div>
+</header>
+
+<section id="map"></section>
+
+<section id="stopInfo">
+    <div class="container drag_handle">
+        <span class="material-icons">drag_handle</span>
+    </div>
+
+    <div id="stop_name_container" class="container">
+        <div class="row border-bottom border-light mb-3 text-center">
+            <div class="col">
+                <h5 id="stop_common_name" class="pt-2"></h5>
+                <p><span id="stop_details"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="stop_info_container" class="container"></div>
+</section>

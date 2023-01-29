@@ -1,0 +1,44 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Busly</title>
+    <link rel="stylesheet" href="~/dist/bootstrap/css/bootstrap.min.css">
+    <link href="~/dist/leaflet/leaflet.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css">
+    <link rel="manifest" href="~/manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="white" />
+    <link rel="icon" href="~/favicon.ico" type="~/img/x-icon" />
+    <link rel="apple-touch-icon" href="~/img/icon-152.png">
+    <meta name="theme-color" content="white" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Bus Tracker">
+    <meta name="msapplication-TileImage" content="~/img/icon-144.png">
+    <meta name="msapplication-TileColor" content="#FFFFFF">
+</head>
+<body>
+
+    <div>
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+
+    <script type="text/javascript">
+        const siteURI = '@Configuration["siteURI"].ToString()';
+    </script>
+
+    <script src="~/dist/jquery/jquery-3.6.3.js"></script>
+    <script src="~/dist/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/dist/leaflet/leaflet.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
