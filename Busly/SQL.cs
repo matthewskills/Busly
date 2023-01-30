@@ -23,7 +23,7 @@ namespace Busly
 
             SQLiteConnection sqlite_conn;
             // Create a new database connection:
-            sqlite_conn = new SQLiteConnection($"Data Source=C:\\home\\site\\wwwroot\\database.db;Version=3;New=True;Compress=True;");
+            sqlite_conn = new SQLiteConnection($"Data Source=D:\\home\\site\\wwwroot\\database.db;Version=3;New=True;Compress=True;");
 
              // Open the connection:
              try
