@@ -35,6 +35,10 @@
     font-feature-settings: 'liga';
 }
 
+.btn .material-icons {
+    line-height:1.5;
+}
+
 header {
     /*font-family: 'Unbounded', cursive;*/
     position: fixed;
