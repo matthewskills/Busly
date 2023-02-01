@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using Newtonsoft.Json;
 using System.Xml;
+using System.Configuration;
 
 namespace Busly
 {
@@ -16,6 +17,8 @@ namespace Busly
         private static string NextBusCredentials = String.Empty;
         private static string DfTBusDataURI = String.Empty;
         private static string DfTBusDataAPIKey = String.Empty;
+
+        private static int NextBusAPIHits = 0;
 
 
         public static void setOptions(string optNextBusURI, string optNextBusCredentials, string optDfTBusDataURI, string optDfTBusDataAPIKey) {
@@ -143,6 +146,10 @@ namespace Busly
 
         public static string GetStopData(String atcocode)  {
 
+            if (NextBusAPIHits >= 1000) {
+                return string.Empty;
+            }
+
             string siriXML = $"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> \r\n<Siri version=\"1.0\" xmlns=\"http://www.siri.org.uk/\"> \r\n <ServiceRequest> \r\n <RequestTimestamp>{DateTime.Now.ToString("yyyyMMddHHmmss")}</RequestTimestamp> \r\n <RequestorRef>TravelineAPI101</RequestorRef> \r\n <StopMonitoringRequest version=\"1.0\"> \r\n <RequestTimestamp>2014-07-01T15:09:12Z</RequestTimestamp>  <MessageIdentifier>12345</MessageIdentifier> \r\n <MonitoringRef>{atcocode}</MonitoringRef> \r\n </StopMonitoringRequest> \r\n </ServiceRequest> \r\n</Siri>";
             HttpContent content = new StringContent(siriXML, Encoding.UTF8, "application/xml");
 
@@ -153,6 +160,8 @@ namespace Busly
                 BaseAddress = new Uri(NextBusURI)
 
             };
+
+            NextBusAPIHits += 1;
 
             string authenticationString = NextBusCredentials;
             string base64EncodedAuthenticationString = Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(authenticationString));

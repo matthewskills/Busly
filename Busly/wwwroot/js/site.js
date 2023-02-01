@@ -39,6 +39,7 @@ const baseMaps =
         "Dark Mode": Stadia_AlidadeSmoothDark
     };
 
+let busTrackingMarker = L.marker([], { icon: vehicleIcon })
 
 
 mymap = L.map('map', {
@@ -66,7 +67,7 @@ $(document).ready(() => {
 
 function stopClick(e) {
 
-    let line_name, direction_name, departure_time, departure_time_diff, departure_time_mins, data;
+    let line_name, direction_name, departure_time, departure_time_diff, departure_time_mins, data, departure_string, expected_departure_time, expected_departure_time_diff;
 
     $.ajax({
         url: `${siteURI}/stopData?atcocode=${this.options.ATCOCode}`,
@@ -92,24 +93,36 @@ function stopClick(e) {
                     direction_name = item.MonitoredVehicleJourney.DirectionName;
                     line_name = item.MonitoredVehicleJourney.PublishedLineName;
                     departure_time = new Date(item.MonitoredVehicleJourney.MonitoredCall.AimedDepartureTime);
+                    expected_departure_time = item.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime ? new Date(item.MonitoredVehicleJourney.MonitoredCall.ExpectedDepartureTime) : null;
                     operator_ref = item.MonitoredVehicleJourney.OperatorRef.replace('_noc_', '');
 
                     departure_time_diff = Math.abs(new Date(Date.now()) - new Date(departure_time));
                     departure_time_mins = Math.floor((departure_time_diff / 1000) / 60);
 
+                    expected_departure_time ? expected_departure_time_diff = Math.abs(new Date(Date.now()) - new Date(expected_departure_time)) : null;
+                    expected_departure_time ? expected_departure_time_mins = Math.floor((expected_departure_time_diff / 1000) / 60): null;
+
+                    if (expected_departure_time) {
+                        expected_departure_time_mins !== departure_time_mins ? departure_string = departure_time_mins : departure_string = `<strike>${departure_time_mins}</strike> ${expected_departure_time_mins}`;
+                    } else {
+                        departure_string = departure_time_mins;
+                    }
+                    
                     const rowTemplate = `<div class="row border-bottom border-light mb-3 pb-3 stop_info_vehicle" data-operatorRef="${operator_ref}" data-lineRef="${line_name}">
                                         <div class="col-8">
                                             <h4><span class="material-icons">directions_bus</span> <span class="badge rounded-pill text-bg-warning">${line_name}</span></h4>
                                             <span>${direction_name}</span>
                                         </div>
                                         <div class="col-4 text-end">
-                                            <h5 class="mb-0">${departure_time_mins} <small class="text-muted">Mins</small></h5>
+                                            <h5 class="mb-0">${departure_string} <small class="text-muted">Mins</small></h5>
                                         </div>
                                     </div>`
 
                     $('#stop_info_container').append(rowTemplate);
                 });
             }
+
+            $('.stop_info_vehicle').on('click', stopVehicleClick)
 
             const height = window.innerHeight;
             const vhPixels = height * 0.5
@@ -158,7 +171,8 @@ function stopVehicleClick(e) {
             data.Siri.ServiceDelivery.VehicleMonitoringDelivery.VehicleActivity.forEach((item) => {
                 const lat = item.MonitoredVehicleJourney.VehicleLocation.Latitude;
                 const lng = item.MonitoredVehicleJourney.VehicleLocation.Longitude;
-                let marker = L.marker([lat, lng], { icon: vehicleIcon }).addTo(mymap);
+                busTrackingMarker.setLatLng([lat, lng]).addTo(mymap);
+                mymap.setView([lat, lng], 17);
             });
         }
     });
