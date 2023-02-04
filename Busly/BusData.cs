@@ -205,5 +205,37 @@ namespace Busly
 
         }
 
+        public static string GetFareDataForBoundingBox(Double lat, Double lng)
+        {
+
+            double meters = 1609;
+            double earth = 6378.137; //radius of the earth in kilometer
+            double m = (1 / ((2 * Math.PI / 360) * earth)) / 1000;  //1 meter in degree
+
+            double new_lat = lat + (meters * m);
+            double new_long = lng + (meters * m) / Math.Cos(lat * (Math.PI / 180));
+            double new_lat2 = lat - (meters * m);
+            double new_long2 = lng - (meters * m) / Math.Cos(lat * (Math.PI / 180));
+
+            var httpClientHandler = new HttpClientHandler();
+            var httpClient = new HttpClient(httpClientHandler)
+            {
+                BaseAddress = new Uri($"{DfTBusDataURI}/fares/dataset?boundingBox={new_lat2}&boundingBox={new_lat}&boundingBox={new_long2}&boundingBox={new_long}&api_key={DfTBusDataAPIKey}")
+            };
+
+            using (var response = httpClient.GetAsync(""))
+            {
+
+                string responseBody = response.Result.Content.ReadAsStringAsync().Result;
+
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(responseBody);
+                string json = JsonConvert.SerializeXmlNode(doc);
+
+                return json.ToString();
+            }
+
+        }
+
     }
 }

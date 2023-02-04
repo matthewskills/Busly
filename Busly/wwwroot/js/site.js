@@ -161,19 +161,31 @@ function findStopQuery(e) {
 }
 
 
+//function stopVehicleClick(e) {
+//    $.ajax({
+//        url: `${siteURI}/vehicleTrackingData?operatorRef=${$(this).data('operatorref')}&lineRef=${$(this).data('lineref')}`,
+//        type: 'GET',
+//        success: result => {
+//           const data = JSON.parse(result);
+
+//            data.Siri.ServiceDelivery.VehicleMonitoringDelivery.VehicleActivity.forEach((item) => {
+//                const lat = item.MonitoredVehicleJourney.VehicleLocation.Latitude;
+//                const lng = item.MonitoredVehicleJourney.VehicleLocation.Longitude;
+//                busTrackingMarker.setLatLng([lat, lng]).addTo(mymap);
+//                mymap.setView([lat, lng], 17);
+//            });
+//        }
+//    });
+//}
+
 function stopVehicleClick(e) {
     $.ajax({
-        url: `${siteURI}/vehicleTrackingData?operatorRef=${$(this).data('operatorref')}&lineRef=${$(this).data('lineref')}`,
+        url: `${siteURI}/faresData?lat=${navigatorLat}&lng=${navigatorLong}`,
         type: 'GET',
         success: result => {
-           const data = JSON.parse(result);
+            const data = JSON.parse(result);
 
-            data.Siri.ServiceDelivery.VehicleMonitoringDelivery.VehicleActivity.forEach((item) => {
-                const lat = item.MonitoredVehicleJourney.VehicleLocation.Latitude;
-                const lng = item.MonitoredVehicleJourney.VehicleLocation.Longitude;
-                busTrackingMarker.setLatLng([lat, lng]).addTo(mymap);
-                mymap.setView([lat, lng], 17);
-            });
+            console.log(result);
         }
     });
 }
@@ -187,14 +199,14 @@ function useLocationClick() {
         $('#stop_info_container').html('');
 
         navigator.geolocation.getCurrentPosition((position) => {
-            navigaotrLat = position.coords.latitude;
+            navigatorLat = position.coords.latitude;
             navigatorLong = position.coords.longitude;
-            mymap.setView([navigaotrLat, navigatorLong], 13);
+            mymap.setView([navigatorLat, navigatorLong], 13);
             let marker = L.marker([position.coords.latitude, position.coords.longitude], { icon: greenIcon }).addTo(mymap);
             mymap.setZoom(17);
 
             $.ajax({
-                url: `${siteURI}/stops?lat=${navigaotrLat}&lng=${navigatorLong}`,
+                url: `${siteURI}/stops?lat=${navigatorLat}&lng=${navigatorLong}`,
                 type: 'GET',
                 success: result => {
                     JSON.parse(result).forEach((item) => {
