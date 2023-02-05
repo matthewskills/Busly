@@ -31,6 +31,6 @@ app.MapGet("/stops", (Double lat, Double lng) => BusData.GetStops(lat,lng));
 app.MapGet("/stopData", (String atcocode) => BusData.GetStopData(atcocode));
 app.MapGet("/stopSearch", (String query) => BusData.StopSearch(query));
 app.MapGet("/vehicleTrackingData", (String lineRef, String operatorRef) => BusData.GetVehicleTrackingData(lineRef,operatorRef));
-app.MapGet("/faresData", (Double lat, Double lng) => BusData.GetFareDataForBoundingBox(lat, lng));
+app.MapGet("/routeData", (String noc, String search) => BusData.GetRouteData(noc, search));
 
 app.Run();

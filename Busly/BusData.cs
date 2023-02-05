@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Data.SQLite;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using Newtonsoft.Json;
 using System.Xml;
-using System.Configuration;
+using System.IO.Compression;
+using System.IO;
+using System.Collections;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Busly
 {
@@ -205,22 +206,17 @@ namespace Busly
 
         }
 
-        public static string GetFareDataForBoundingBox(Double lat, Double lng)
+
+        public static string GetRouteData(String noc, String search)
         {
+            search = search.Substring(0, 3);
 
-            double meters = 1609;
-            double earth = 6378.137; //radius of the earth in kilometer
-            double m = (1 / ((2 * Math.PI / 360) * earth)) / 1000;  //1 meter in degree
-
-            double new_lat = lat + (meters * m);
-            double new_long = lng + (meters * m) / Math.Cos(lat * (Math.PI / 180));
-            double new_lat2 = lat - (meters * m);
-            double new_long2 = lng - (meters * m) / Math.Cos(lat * (Math.PI / 180));
+            string timetableUrl = String.Empty;
 
             var httpClientHandler = new HttpClientHandler();
             var httpClient = new HttpClient(httpClientHandler)
             {
-                BaseAddress = new Uri($"{DfTBusDataURI}/fares/dataset?boundingBox={new_lat2}&boundingBox={new_lat}&boundingBox={new_long2}&boundingBox={new_long}&api_key={DfTBusDataAPIKey}")
+                BaseAddress = new Uri($"{DfTBusDataURI}/dataset/?adminArea={search}&noc={noc}&limit=1&offset=0&status=published&api_key={DfTBusDataAPIKey}")
             };
 
             using (var response = httpClient.GetAsync(""))
@@ -228,12 +224,53 @@ namespace Busly
 
                 string responseBody = response.Result.Content.ReadAsStringAsync().Result;
 
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(responseBody);
-                string json = JsonConvert.SerializeXmlNode(doc);
+                timetableUrl = responseBody.Split("\"url\":\"")[1].Split("\"")[0];
+       
 
-                return json.ToString();
+                
             }
+
+            httpClient.Dispose();
+
+            httpClientHandler = new HttpClientHandler();
+            httpClient = new HttpClient(httpClientHandler)
+            {
+                BaseAddress = new Uri(timetableUrl)
+            };
+
+            using (var response = httpClient.GetStreamAsync(""))
+            {
+
+                string extractPath = AppDomain.CurrentDomain.BaseDirectory + $"\\downloads\\{search}_{noc}\\";
+                string downloadPath = AppDomain.CurrentDomain.BaseDirectory + $"\\downloads\\{search}_{noc}.zip";
+
+                using (Stream zip = File.OpenWrite(downloadPath))
+                {
+                    response.Result.CopyTo(zip);
+                }
+
+                Directory.CreateDirectory(extractPath);
+                ZipFile.ExtractToDirectory(downloadPath, extractPath);
+
+                string[] fileEntries = Directory.GetFiles(extractPath);
+                foreach (string fileName in fileEntries)
+                {
+
+                    using (var streamReader = new StreamReader(@""+fileName, Encoding.UTF8))
+                    {
+                        string text = streamReader.ReadToEnd();
+                        XmlDocument doc = new XmlDocument();
+                        doc.LoadXml(text);
+                        string json = JsonConvert.SerializeXmlNode(doc);
+                        Console.WriteLine(json);
+                    }
+
+                   
+                }
+
+            }
+
+            return String.Empty;
 
         }
 

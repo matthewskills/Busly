@@ -108,7 +108,7 @@ function stopClick(e) {
                         departure_string = departure_time_mins;
                     }
                     
-                    const rowTemplate = `<div class="row border-bottom border-light mb-3 pb-3 stop_info_vehicle" data-operatorRef="${operator_ref}" data-lineRef="${line_name}">
+                    const rowTemplate = `<div class="row border-bottom border-light mb-3 pb-3 stop_info_vehicle" data-operatorRef="${operator_ref}" data-lineRef="${line_name}" data-atcoCode="${this.options.ATCOCode}">
                                         <div class="col-8">
                                             <h4><span class="material-icons">directions_bus</span> <span class="badge rounded-pill text-bg-warning">${line_name}</span></h4>
                                             <span>${direction_name}</span>
@@ -149,8 +149,8 @@ function findStopQuery(e) {
                     item.LocalityName ? stopDetails.push(item.LocalityName) : null;
                     item.ParentLocalityName ? stopDetails.push(item.ParentLocalityName) : null;
                     stopDetails.join();
-
-                    $('#autocomplete').children('.list-group').append(`<li data-latitude="${item.Latitude}" data-longitude="${item.Longitude}" data-commonname="${item.CommonName}" class="list-group-item">${item.CommonName}, ${stopDetails}</li>`)
+                 
+                    $('#autocomplete').children('.list-group').append(`<li data-latitude="${item.Latitude}" data-longitude="${item.Longitude}" data-commonname="${item.CommonName}"  class="list-group-item">${item.CommonName}, ${stopDetails}</li>`)
                 });
                 $('#autocomplete').show();
                 $('#autocomplete').children('.list-group').children('.list-group-item').on('click', stopQuerySelect)
@@ -180,7 +180,7 @@ function findStopQuery(e) {
 
 function stopVehicleClick(e) {
     $.ajax({
-        url: `${siteURI}/faresData?lat=${navigatorLat}&lng=${navigatorLong}`,
+        url: `${siteURI}/routeData?noc=${$(this).data('operatorref')}&search=${$(this).data('atcocode') }`,
         type: 'GET',
         success: result => {
             const data = JSON.parse(result);
